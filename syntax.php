@@ -7,7 +7,7 @@
  *          ===== - Heading Level 2 =====
  *                   ...
  *
- * =>       1 Heading Level 1
+ * =>       1. Heading Level 1
  *              1.1 Heading Level 2
  *              1.2 Heading Level 2
  *          ...
@@ -105,19 +105,29 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
             $this->headingCount[$i] = 0;
         }
 
-
-        // build the actual number
-        $headingNumber = '';
-        for ($i=$this->startlevel;$i<=5;$i++) {
-            // build the number of the heading
-            $headingNumber .= ($this->headingCount[$i]!=0) ? $this->headingCount[$i].'.' : '';
+        // build tiered numbers for hierarchical headings
+        $numbers = [];
+        for ($i = $this->startlevel; $i <= $level; $i++) {
+            $numbers[] = $this->headingCount[$i];
+        }
+        if ($numbers) {
+            $tieredNumber = implode('.', $numbers);
+            if (count($numbers) == 1) {
+                // append always tailing dot for single tiered number
+                $tieredNumber .= '.';
+            } elseif ($this->tailingdot) {
+                // append tailing dot if wished
+                $tieredNumber .= '.';
+            }
+            // append figure space after tiered number to distinguish title
+            $tieredNumber .= ' '; // U+2007 figure space
+        } else {
+            $tieredNumber = '';
         }
 
-        // delete the tailing dot if wished (default)
-        $headingNumber = ($this->tailingdot) ? $headingNumber : substr($headingNumber,0,-1);
-
-        // insert the number...
-        $match = preg_replace('/(={2,}\s?)\-/', '${1}'.$headingNumber, $match);
+        // revise the match
+        $markup = str_repeat('=', 7 - $level);
+        $match = $markup.$tieredNumber.$title.$markup;
 
         // ... and return to original behavior
         $handler->header($match, $state, $pos);
