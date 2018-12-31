@@ -21,12 +21,6 @@ if(!defined('DOKU_INC')) die();
 
 class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
 
-    var $levels = array( '======'=>1,
-                         '====='=>2,
-                         '===='=>3,
-                         '==='=>4,
-                         '=='=>5);
-
     var $headingCount =
                  array(  1=>0,
                          2=>0,
@@ -58,7 +52,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         $this->mode = substr(get_class($this), 7);
 
         // syntax pattern
-        $this->pattern[5] = '^[ \t]*={2,6}\s?\-[^\n]+={2,6}[ \t]*(?=\n)';
+        $this->pattern[5] = '^[ \t]*={2,6} ?-(?: ?#[0-9]+)? [^\n]+={2,6}[ \t]*(?=\n)';
     }
 
     function connectTo($mode) {
@@ -87,32 +81,34 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
             return true;
         }
 
-        // define the level of the heading
-        preg_match('/(={2,})/', $match, $heading);
-        $level = $this->levels[$heading[1]];
+        // obtain the level of the heading
+        $title = trim($match);
+        $level = 7 - strspn($title, '=');
 
         // obtain the startnumber if defined
-        if (preg_match('/#([0-9]+)\s/', $match, $startnumber) && ($startnumber[1]) > 0) {
-            $this->headingCount[$level] = $startnumber[1];
-
-            //delete the startnumber-setting markup from string
-            $match = preg_replace('/#[0-9]+\s/', ' ', $match);
-
+        $title = trim($title, '= ');  // drop heading markup
+        $title = ltrim($title, '- '); // not drop tailing -
+        if ($title[0] == '#') {
+            $title = substr($title, 1); // drop #
+            $i = strspn($title, '0123456789');
+            $number = substr($title, 0, $i) + 0;
+            $title  = ltrim(substr($title, $i));
+            // set the number of the heading
+            $this->headingCount[$level] = $number;
         } else {
-
             // increment the number of the heading
             $this->headingCount[$level]++;
         }
 
+        // reset the number of the subheadings
+        for ($i = $level +1; $i <= 5; $i++) {
+            $this->headingCount[$i] = 0;
+        }
+
+
         // build the actual number
         $headingNumber = '';
         for ($i=$this->startlevel;$i<=5;$i++) {
-
-            // reset the number of the subheadings
-            if ($i>$level) {
-                $this->headingCount[$i] = 0;
-            }
-
             // build the number of the heading
             $headingNumber .= ($this->headingCount[$i]!=0) ? $this->headingCount[$i].'.' : '';
         }
