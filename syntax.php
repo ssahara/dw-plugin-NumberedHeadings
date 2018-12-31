@@ -16,9 +16,8 @@
  * @author     Lars J. Metz <dokuwiki@meistermetz.de>
  */
 
-if(!defined('DOKU_INC')) define('DOKU_INC',realpath(dirname(__FILE__).'/../../').'/');
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'syntax.php');
+// must be run within DokuWiki
+if(!defined('DOKU_INC')) die();
 
 class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
 
@@ -65,7 +64,10 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         return 45;
     }
 
-    function handle($match, $state, $pos, &$handler){
+    /**
+     * Handle the match
+     */
+    function handle($match, $state, $pos, Doku_Handler $handler) {
 
         // obtain the startlevel from the page if defined
         if (preg_match('/{{[a-z]{6,10}>([1-5]+)}}/', $match, $startlevel)) {
@@ -115,7 +117,10 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         return true;
     }
 
-    function render($format, &$renderer, $data) {
+    /**
+     * Create output
+     */
+    function render($format, Doku_Renderer $renderer, $data) {
         //do nothing (already done by original render-method)
     }
 }
