@@ -44,15 +44,6 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         $this->tailingdot = $this->getConf('tailingdot');
     }
 
-    function getInfo(){
-        return array( 'author' => 'Lars J. Metz',
-                      'email'  => 'dokuwiki@meistermetz.de',
-                      'date'   => '2010-05-12',
-                      'name'   => 'Plugin: Numbered Headings',
-                      'desc'   => 'Adds numbered headings to DokuWiki',
-                      'url'    => 'http://www.dokuwiki.org/plugin:NumberedHeadings');
-    }
-
     function getType(){
         return 'substition';
     }
@@ -128,4 +119,3 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         //do nothing (already done by original render-method)
     }
 }
-//Setup VIM: ex: et ts=4 enc=utf-8 :
