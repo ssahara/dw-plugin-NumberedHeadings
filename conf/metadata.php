@@ -1,6 +1,6 @@
 <?php
 /**
- * Metadata for the NumberedHeading Plugin
+ * Metadata for the Numbered Headings Plugin
  *
  * @author     Lars J. Metz <dokuwiki@meistermetz.de>
  */
