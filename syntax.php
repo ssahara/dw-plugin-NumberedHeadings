@@ -55,7 +55,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
 
         // syntax pattern
         $this->pattern[0] = '~~HEADLINE NUMBERING FIRST LEVEL = \d~~';
-        $this->pattern[5] = '^[ \t]*={2,6} ?-(?: ?#[0-9]+)? [^\n]+={2,6}[ \t]*(?=\n)';
+        $this->pattern[5] = '^[ \t]*={2,} ?-(?: ?#[0-9]+)? [^\n]+={2,}[ \t]*(?=\n)';
     }
 
     function connectTo($mode) {
@@ -87,6 +87,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         // obtain the level of the heading
         $title = trim($match);
         $level = 7 - strspn($title, '=');
+        if ($level < 1) $level = 1;
 
         // obtain the startnumber if defined
         $title = trim($title, '= ');  // drop heading markup
