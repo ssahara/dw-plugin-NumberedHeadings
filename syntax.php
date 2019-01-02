@@ -35,7 +35,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
     function __construct() {
         // retrieve once config settings
         //   startlevel: upper headline level for hierarchical numbering (default = 2)
-        //   tailingdot: show a tailing dot after numbers (default = 0)
+        //   tailingdot: add a tailing dot after sub-tier numbers (default = off)
         $this->startlevel = $this->getConf('startlevel');
         $this->tailingdot = $this->getConf('tailingdot');
     }
@@ -54,16 +54,17 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         $this->mode = substr(get_class($this), 7);
 
         // syntax pattern
+        $this->pattern[0] = '~~HEADLINE NUMBERING FIRST LEVEL = \d~~';
         $this->pattern[5] = '^[ \t]*={2,6} ?-(?: ?#[0-9]+)? [^\n]+={2,6}[ \t]*(?=\n)';
     }
 
     function connectTo($mode) {
+        $this->Lexer->addSpecialPattern($this->pattern[0], $mode, $this->mode);
         $this->Lexer->addSpecialPattern($this->pattern[5], $mode, $this->mode);
 
+        // backward compatibility, to be obsoleted in future ...
         $this->Lexer->addSpecialPattern(
                         '{{header>[1-5]}}', $mode, $this->mode);
-
-        // added new parameter (matches the parameter name for better recognition)
         $this->Lexer->addSpecialPattern(
                         '{{startlevel>[1-5]}}', $mode, $this->mode);
     }
