@@ -1,7 +1,9 @@
 base     numberedheadings
-author   Lars J. Metz
+author   Lars J. Metz (2006-2010)
 email    dokuwiki@meistermetz.de
-date     2010-05-12
+author   Satoshi Sahara
+email    sahara.satoshi@gmail.com
+date     2019-01-02
 name     Numbered Headings
-desc     Adds numbered headings to DokuWiki
+desc     Add tiered numbers as indexes for hierarchical headings
 url      https://www.dokuwiki.org/plugin:NumberedHeadings
