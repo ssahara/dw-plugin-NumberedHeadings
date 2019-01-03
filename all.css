@@ -1,0 +1,10 @@
+/**
+ * DokuWiki Plugin Numbered Headings
+ */
+.dokuwiki .page h1 .plugin_numberedheadinngs,
+.dokuwiki .page h2 .plugin_numberedheadinngs,
+.dokuwiki .page h3 .plugin_numberedheadinngs,
+.dokuwiki .page h4 .plugin_numberedheadinngs,
+.dokuwiki .page h5 .plugin_numberedheadinngs, {
+    font-style: oblique;
+}
