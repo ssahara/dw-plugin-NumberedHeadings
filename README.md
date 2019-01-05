@@ -8,8 +8,8 @@ the actual behavior of the standard headings.
 | Parameter  | Description                                                   |
 | ---------- | ------------------------------------------------------------- |
 | startlevel | upper heading level for hierarchical numbering (default = 2)  |
-| tailingdot | add a tailing dot after sub-tier numbers (default = false)    |
-
+| prefix     | prefix to first number for different levels, comma separated  |
+| suffix     | suffix to last number for different levels, comma separated   |
 
 ## Usage
 
@@ -20,8 +20,8 @@ the actual behavior of the standard headings.
     ===== - Lv2 Headline 2 =====
 
     Lv1 Headline
-    1. Lv2 Headline 1
+    1 Lv2 Headline 1
     1.1 Lv3 Headline 1
     1.2 Lv3 Headline 2
-    2. Lv2 Headline 2
+    2 Lv2 Headline 2
 
