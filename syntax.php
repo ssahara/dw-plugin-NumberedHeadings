@@ -86,8 +86,8 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
 
         // obtain the level of the heading
         $title = trim($match);
-        $level = 7 - strspn($title, '=');
-        if ($level < 1) $level = 1;
+        $level = 7 - min(strspn($title, '='), 6);
+        $markup = str_repeat('=', 7 - $level);
 
         // obtain the startnumber if defined
         $title = trim($title, '= ');  // drop heading markup
@@ -116,13 +116,12 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         }
         if ($numbers) {
             $tieredNumber = implode('.', $numbers);
-            if (count($numbers) == 1) {
-                // append always tailing dot for single tiered number
-                $tieredNumber .= '.';
-            } elseif ($this->tailingdot) {
-                // append tailing dot if wished
-                $tieredNumber .= '.';
-            }
+            $prefix = array_pad(explode(',',$this->getConf('prefix')), 5, '');
+            $suffix = array_pad(explode(',',$this->getConf('suffix')), 5, '');
+
+            $n = count($numbers) -1;
+            $tieredNumber = $prefix[$n].$tieredNumber.$suffix[$n];
+
             // append figure space after tiered number to distinguish title
             $tieredNumber .= ' '; // U+2007 figure space
         } else {
@@ -130,7 +129,6 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         }
 
         // revise the match
-        $markup = str_repeat('=', 7 - $level);
         $match = $markup.$tieredNumber.$title.$markup;
 
         // ... and return to original behavior
