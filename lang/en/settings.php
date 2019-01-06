@@ -10,3 +10,4 @@
 $lang['startlevel'] = 'level to start with numbered headings';
 $lang['prefix'] = 'prefix to first number, comma separated for tier 1 to 5 (e.g. ,§,§,§,§)';
 $lang['suffix'] = 'suffix to last number, comma separated for tier 1 to 5 (e.g. .)';
+$lang['fancy']  = 'enclose tiered numbers in span tag to enable css rules';

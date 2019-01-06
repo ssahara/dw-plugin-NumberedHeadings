@@ -9,3 +9,4 @@
 $meta['startlevel'] = array('multichoice', '_choices' => [1, 2 ,3, 4, 5]);
 $meta['prefix'] = array('string');
 $meta['suffix'] = array('string');
+$meta['fancy']  = array('onoff');

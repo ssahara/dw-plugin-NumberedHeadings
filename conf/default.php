@@ -9,3 +9,4 @@
 $conf['startlevel'] = 2;  // level to start with numbered headings
 $conf['prefix'] = '';  // prefix to first number for different levels, comma separated
 $conf['suffix'] = '';  // suffix to last number for different levels, comma separated
+$conf['fancy']  = 0;   // enclose tiered numbers in span tag
