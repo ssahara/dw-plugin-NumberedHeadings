@@ -14,9 +14,11 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin {
      * Registers a callback function for a given event
      */
     function register(Doku_Event_Handler $controller) {
-        $controller->register_hook(
-            'RENDERER_CONTENT_POSTPROCESS', 'AFTER', $this, '_tieredNumber'
-        );
+        if ($this->getConf('fancy')) {
+            $controller->register_hook(
+                'RENDERER_CONTENT_POSTPROCESS', 'AFTER', $this, '_tieredNumber'
+            );
+        }
     }
 
     /**
