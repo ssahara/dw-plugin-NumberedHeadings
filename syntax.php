@@ -110,11 +110,8 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         }
 
         // build tiered numbers for hierarchical headings
-        $numbers = [];
-        for ($i = $this->startlevel; $i <= $level; $i++) {
-            $numbers[] = $this->headingCount[$i];
-        }
-        if ($numbers) {
+        if ($this->startlevel <= $level) {
+            $numbers = array_slice($this->headingCount, $this->startlevel -1, $level - $this->startlevel +1);
             $tieredNumber = implode('.', $numbers);
             $prefix = array_pad(explode(',',$this->getConf('prefix')), 5, '');
             $suffix = array_pad(explode(',',$this->getConf('suffix')), 5, '');
