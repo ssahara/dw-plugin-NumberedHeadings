@@ -110,11 +110,8 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         }
 
         // build tiered numbers for hierarchical headings
-        $numbers = [];
-        for ($i = $this->startlevel; $i <= $level; $i++) {
-            $numbers[] = $this->headingCount[$i];
-        }
-        if ($numbers) {
+        if ($this->startlevel <= $level) {
+            $numbers = array_slice($this->headingCount, $this->startlevel -1, $level - $this->startlevel +1);
             $tieredNumber = implode('.', $numbers);
             if (count($numbers) == 1) {
                 // append always tailing dot for single tiered number
