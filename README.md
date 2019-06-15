@@ -9,6 +9,7 @@ the actual behavior of the standard headings.
 | ---------- | ------------------------------------------------------------- |
 | startlevel | upper heading level for hierarchical numbering (default = 2)  |
 | tailingdot | add a tailing dot after sub-tier numbers (default = false)    |
+| fancy      | styled heading numbers (default = false)                      |
 
 
 ## Usage
