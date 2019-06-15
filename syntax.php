@@ -79,17 +79,17 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
     function handle($match, $state, $pos, Doku_Handler $handler) {
 
         // obtain the startlevel from the page if defined
+        $match = trim($match);
         if ($match[0] !== '=') {
             $this->startlevel = (int) substr($match, -3, 1);
             return false;
         }
 
         // obtain the level of the heading
-        $title = trim($match);
-        $level = 7 - min(strspn($title, '='), 6);
+        $level = 7 - min(strspn($match, '='), 6);
 
         // obtain the startnumber if defined
-        $title = trim($title, '= ');  // drop heading markup
+        $title = trim($match, '= ');  // drop heading markup
         $title = ltrim($title, '- '); // not drop tailing -
         if ($title[0] === '#') {
             $title = substr($title, 1); // drop #
