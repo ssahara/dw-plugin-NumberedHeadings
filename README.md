@@ -7,7 +7,7 @@ the actual behavior of the standard headings.
 
 | Parameter  | Description                                                   |
 | ---------- | ------------------------------------------------------------- |
-| startlevel | upper heading level for hierarchical numbering (default = 2)  |
+| startlevel | heading level corresponding to the 1st tier (default = 2)     |
 | tailingdot | add a tailing dot after sub-tier numbers (default = false)    |
 | fancy      | styled heading numbers (default = false)                      |
 

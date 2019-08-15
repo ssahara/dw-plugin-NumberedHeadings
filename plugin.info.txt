@@ -3,7 +3,7 @@ author   Lars J. Metz (2006-2010)
 email    dokuwiki@meistermetz.de
 author   Satoshi Sahara
 email    sahara.satoshi@gmail.com
-date     2019-06-15
+date     2019-08-15
 name     Numbered Headings
 desc     Add tiered numbers as indexes for hierarchical headings
 url      https://www.dokuwiki.org/plugin:NumberedHeadings

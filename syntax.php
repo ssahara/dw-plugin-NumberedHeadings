@@ -13,7 +13,7 @@
  *          ...
  *
  * Config settings
- *     startlevel: upper headline level for hierarchical numbering (default = 2)
+ *     startlevel: heading level corresponding to the 1st tier (default = 2)
  *     tailingdot: add a tailing dot after sub-tier numbers (default = off)
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
