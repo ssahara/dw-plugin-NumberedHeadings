@@ -90,20 +90,10 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         $this->setHeadingCounter($level, $number);
 
         // build tiered numbers for hierarchical headings
-        if ($this->StartLevel <= $level) {
-            $numbers = array_slice($this->HeadingCount, $this->StartLevel -1, $level - $this->StartLevel +1);
-            $tieredNumber = implode('.', $numbers);
-            if (count($numbers) == 1) {
-                // append always tailing dot for single tiered number
-                $tieredNumber .= '.';
-            } elseif ($this->getConf('tailingdot')) {
-                // append tailing dot if wished
-                $tieredNumber .= '.';
-            }
+        $tieredNumbers = $this->getTieredNumbers($level);
+        if ($tieredNumbers) {
             // append figure space after tiered number to distinguish title
-            $tieredNumber .= ' '; // U+2007 figure space
-        } else {
-            $tieredNumber = '';
+            $tieredNumbers .= ' '; // U+2007 figure space
         }
 
         // revise the match
@@ -153,6 +143,30 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         } else {
             $this->initHeadingCounter();
         }
+    }
+
+    /**
+     * Build tiered numbers
+     */
+    protected function getTieredNumbers($level, $offset=null)
+    {
+        $offset = $offset ?? max(0, $this->StartLevel -1);
+
+        if (isset($level) && $offset < $level) {
+            $tier = $level - $offset;
+            $numbers = array_slice($this->HeadingCount, $offset, $tier);
+            $tieredNumber = implode('.', $numbers);
+            if (count($numbers) == 1) {
+                // append always tailing dot for single tiered number
+                $tieredNumber .= '.';
+            } elseif ($this->getConf('tailingdot')) {
+                // append tailing dot if wished
+                $tieredNumber .= '.';
+            }
+        } else {
+            $tieredNumber = '';
+        }
+        return $tieredNumber;
     }
 
 }
