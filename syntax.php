@@ -2,15 +2,19 @@
 /**
  * DokuWiki Plugin Numbered Headings: add tiered numbers for hierarchical headings
  *
- * Usage:   ====== - Heading Level 1======
- *          ===== - Heading Level 2 =====
- *          ===== - Heading Level 2 =====
- *                   ...
- *
- * =>       1. Heading Level 1
- *              1.1 Heading Level 2
- *              1.2 Heading Level 2
+ * Usage:   ===== - Heading Level 2 =====
+ *          ==== - Heading Level 3 ====
+ *          ==== - Heading Level 3 ====
  *          ...
+ *
+ * =>       1. Heading Level 2
+ *              1.1 Heading Level 3
+ *              1.2 Heading Level 3
+ *          ...
+ *
+ * Config settings
+ *     startlevel: heading level corresponding to the 1st tier (default = 2)
+ *     tailingdot: add a tailing dot after sub-tier numbers (default = off)
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Lars J. Metz <dokuwiki@meistermetz.de>
@@ -20,27 +24,9 @@
 // must be run within DokuWiki
 if(!defined('DOKU_INC')) die();
 
-class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
-
-    protected $headingCount = [
-                1 => 0,
-                2 => 0,
-                3 => 0,
-                4 => 0,
-                5 => 0,
-    ];
-
-    protected $startlevel, $tailingdot;
-
-    function __construct() {
-        // retrieve once config settings
-        //   startlevel: upper headline level for hierarchical numbering (default = 2)
-        //   tailingdot: add a tailing dot after sub-tier numbers (default = off)
-        $this->startlevel = $this->getConf('startlevel');
-        $this->tailingdot = $this->getConf('tailingdot');
-    }
-
-    function getType(){
+class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
+{
+    function getType() {
         return 'substition';
     }
 
@@ -81,14 +67,16 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         // obtain the startlevel from the page if defined
         $match = trim($match);
         if ($match[0] !== '=') {
-            $this->startlevel = (int) substr($match, -3, 1);
-            return false;
+            $this->StartLevel = (int) substr($match, -3, 1);
+            return $data = false;
+        } elseif (!$this->StartLevel) {
+            $this->StartLevel = $this->getConf('startlevel');
         }
 
         // obtain the level of the heading
         $level = 7 - min(strspn($match, '='), 6);
 
-        // obtain the startnumber if defined
+        // obtain number of the heading if defined
         $title = trim($match, '= ');  // drop heading markup
         $title = ltrim($title, '- '); // not drop tailing -
         if ($title[0] === '#') {
@@ -96,26 +84,19 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
             $i = strspn($title, '0123456789');
             $number = substr($title, 0, $i) + 0;
             $title  = ltrim(substr($title, $i));
-            // set the number of the heading
-            $this->headingCount[$level] = $number;
-        } else {
-            // increment the number of the heading
-            $this->headingCount[$level]++;
         }
 
-        // reset the number of the subheadings
-        for ($i = $level +1; $i <= 5; $i++) {
-            $this->headingCount[$i] = 0;
-        }
+        // set the internal heading counter
+        $this->setHeadingCounter($level, $number);
 
         // build tiered numbers for hierarchical headings
-        if ($this->startlevel <= $level) {
-            $numbers = array_slice($this->headingCount, $this->startlevel -1, $level - $this->startlevel +1);
+        if ($this->StartLevel <= $level) {
+            $numbers = array_slice($this->HeadingCount, $this->StartLevel -1, $level - $this->StartLevel +1);
             $tieredNumber = implode('.', $numbers);
             if (count($numbers) == 1) {
                 // append always tailing dot for single tiered number
                 $tieredNumber .= '.';
-            } elseif ($this->tailingdot) {
+            } elseif ($this->getConf('tailingdot')) {
                 // append tailing dot if wished
                 $tieredNumber .= '.';
             }
@@ -132,13 +113,46 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin {
         // ... and return to original behavior
         $handler->header($match, $state, $pos);
 
-        return false;
+        return $data = false;
     }
 
     /**
      * Create output
      */
     function render($format, Doku_Renderer $renderer, $data) {
-        //do nothing (already done by original render-method)
+        // nothing to do, should never be called
     }
+
+    /*----------------------------------------------------------------*
+     * Numbering feature
+     *----------------------------------------------------------------*/
+
+    protected $StartLevel;          // heading level corresponding to the 1st tier
+    protected $HeadingCount = [];   // heading counter
+
+    protected function initHeadingCounter()
+    {
+        $this->HeadingCount = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 ];
+    }
+
+    /**
+     * Set or initialise the internal heading counter
+     */
+    protected function setHeadingCounter($level=null, $number=null)
+    {
+        if (isset($level)) {
+            // prepare the internal heading counter
+            if (!$this->HeadingCount) {
+                $this->initHeadingCounter();
+            }
+            $this->HeadingCount[$level] = $number ?? ++$this->HeadingCount[$level];
+            // reset the number of the subheadings
+            for ($i = $level +1; $i <= 5; $i++) {
+                $this->HeadingCount[$i] = 0;
+            }
+        } else {
+            $this->initHeadingCounter();
+        }
+    }
+
 }
