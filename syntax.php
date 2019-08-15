@@ -73,15 +73,10 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
             $this->StartLevel = $this->getConf('startlevel');
         }
 
-        // prepare the internal heading counter
-        if (!$this->HeadingCount) {
-            $this->initHeadingCounter();
-        }
-
         // obtain the level of the heading
         $level = 7 - min(strspn($match, '='), 6);
 
-        // obtain the startnumber if defined
+        // obtain number of the heading if defined
         $title = trim($match, '= ');  // drop heading markup
         $title = ltrim($title, '- '); // not drop tailing -
         if ($title[0] === '#') {
@@ -89,17 +84,10 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
             $i = strspn($title, '0123456789');
             $number = substr($title, 0, $i) + 0;
             $title  = ltrim(substr($title, $i));
-            // set the number of the heading
-            $this->HeadingCount[$level] = $number;
-        } else {
-            // increment the number of the heading
-            $this->HeadingCount[$level]++;
         }
 
-        // reset the number of the subheadings
-        for ($i = $level +1; $i <= 5; $i++) {
-            $this->HeadingCount[$i] = 0;
-        }
+        // set the internal heading counter
+        $this->setHeadingCounter($level, $number);
 
         // build tiered numbers for hierarchical headings
         if ($this->StartLevel <= $level) {
@@ -142,8 +130,29 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
     protected $StartLevel;          // heading level corresponding to the 1st tier
     protected $HeadingCount = [];   // heading counter
 
-    protected function initHeadingCounter() {
+    protected function initHeadingCounter()
+    {
         $this->HeadingCount = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 ];
+    }
+
+    /**
+     * Set or initialise the internal heading counter
+     */
+    protected function setHeadingCounter($level=null, $number=null)
+    {
+        if (isset($level)) {
+            // prepare the internal heading counter
+            if (!$this->HeadingCount) {
+                $this->initHeadingCounter();
+            }
+            $this->HeadingCount[$level] = $number ?? ++$this->HeadingCount[$level];
+            // reset the number of the subheadings
+            for ($i = $level +1; $i <= 5; $i++) {
+                $this->HeadingCount[$i] = 0;
+            }
+        } else {
+            $this->initHeadingCounter();
+        }
     }
 
 }
