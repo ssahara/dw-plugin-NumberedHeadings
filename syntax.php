@@ -14,6 +14,7 @@
  *
  * Config settings
  *     startlevel: heading level corresponding to the 1st tier (default = 2)
+ *     format    : numbering format (used in vsprintf) of each tier, JSON array string
  *     tailingdot: add a tailing dot after sub-tier numbers (default = off)
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
@@ -118,11 +119,21 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      *----------------------------------------------------------------*/
 
     protected $StartLevel;          // heading level corresponding to the 1st tier
+    protected $TierFormat   = [];   // numbering format of each tier
     protected $HeadingCount = [];   // heading counter
 
     protected function initHeadingCounter()
     {
         $this->HeadingCount = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 ];
+    }
+
+    protected function initTierFormat($format=null)
+    {
+        $format = $format ?? $this->getConf('format');  // JSON array string
+        $this->TierFormat = json_decode($format, true) ?? [];
+        // re-index array from 1, instead of 0
+        array_unshift($this->TierFormat, '');
+        unset($this->TierFormat[0]);
     }
 
     /**
@@ -150,23 +161,27 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      */
     protected function getTieredNumbers($level, $offset=null)
     {
+        if (!$this->TierFormat) {
+            $this->initTierFormat();
+        }
+
         $offset = $offset ?? max(0, $this->StartLevel -1);
 
         if (isset($level) && $offset < $level) {
             $tier = $level - $offset;
             $numbers = array_slice($this->HeadingCount, $offset, $tier);
-            $tieredNumber = implode('.', $numbers);
-            if (count($numbers) == 1) {
-                // append always tailing dot for single tiered number
-                $tieredNumber .= '.';
-            } elseif ($this->getConf('tailingdot')) {
-                // append tailing dot if wished
-                $tieredNumber .= '.';
+            if (isset($this->TierFormat[$tier])) {
+                $tieredNumbers = vsprintf($this->TierFormat[$tier], $numbers);
+            } else {
+                $tieredNumbers = implode('.', $numbers);
+            }
+            if ($tier > 1 && $this->getConf('tailingdot')) {
+                $tieredNumbers .= '.';
             }
         } else {
-            $tieredNumber = '';
+            $tieredNumbers = '';
         }
-        return $tieredNumber;
+        return $tieredNumbers;
     }
 
 }
