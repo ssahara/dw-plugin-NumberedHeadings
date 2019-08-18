@@ -42,7 +42,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 
         // syntax pattern
         $this->pattern[0] = '~~HEADLINE NUMBERING FIRST LEVEL = \d~~';
-        $this->pattern[5] = '^[ \t]*={2,} ?-(?: ?#[0-9]+)? [^\n]+={2,}[ \t]*(?=\n)';
+        $this->pattern[5] = '^[ \t]*={2,} ?-(?: ?#[0-9]+)? [^\n]*={2,}[ \t]*(?=\n)';
     }
 
     function connectTo($mode) {
@@ -81,18 +81,36 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         }
         $tier = $level - $this->StartLevel +1;
 
-        // obtain number of the heading if defined
-        $title = trim($match, '= ');  // drop heading markup
-        $title = ltrim($title, '- '); // not drop tailing -
-        if ($title[0] === '#') {
-            $title = substr($title, 1); // drop #
-            $i = strspn($title, '0123456789');
-            $number = substr($title, 0, $i) + 0;
-            $title  = ltrim(substr($title, $i));
+        $text = trim(trim($match), '='); // drop heading markup
+        $text = ltrim($text);
+        $dash = strspn($text, '-');      // count dash marker to check '-' or '--'
+        $text = substr($text, $dash);
+
+        // separate param and title
+        switch ($text[0]) {
+            case ' ':
+                $number = '';
+                $title = trim($text);
+                break;
+            case '#':
+                [$number, $title] = explode(' ', substr($text, 1), 2);
+                $number = $this->is_digits($number) ? $number +0 : 0;
+                break;
+        }
+
+        // extra check of title
+        if (empty($number) && $title[0] === '#') {
+            $part = explode(' ', substr($title, 1), 2);
+            if ($this->is_digits($part[0])) {
+                $number = $part[0] +0;
+                $title = trim($part[1]);
+            }
         }
 
         // set the internal heading counter
-        $this->setHeadingCounter($level, $number);
+        if (isset($number)) {
+            $this->setHeadingCounter($level, $number);
+        }
 
         // build tiered numbers for hierarchical headings
         $tieredNumbers = $this->getTieredNumbers($level);
@@ -204,6 +222,10 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
             $tieredNumbers = '';
         }
         return $tieredNumbers;
+    }
+
+    protected function is_digits($v) {
+        return ($v && strlen($v) === strspn($v,'0123456789'));
     }
 
 }
