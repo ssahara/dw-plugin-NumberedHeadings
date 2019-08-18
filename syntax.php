@@ -68,14 +68,18 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         // obtain the startlevel from the page if defined
         $match = trim($match);
         if ($match[0] !== '=') {
+            // Note: StartLevel may become 0 (auto-detect?) in the page
             $this->StartLevel = (int) substr($match, -3, 1);
             return $data = false;
-        } elseif (!$this->StartLevel) {
-            $this->StartLevel = $this->getConf('startlevel');
         }
 
         // obtain the level of the heading
         $level = 7 - min(strspn($match, '='), 6);
+
+        if (!$this->StartLevel) {
+            $this->StartLevel = $this->getConf('startlevel') ?: $level;
+        }
+        $tier = $level - $this->StartLevel +1;
 
         // obtain number of the heading if defined
         $title = trim($match, '= ');  // drop heading markup
@@ -99,7 +103,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 
         // revise the match
         $markup = str_repeat('=', 7 - $level);
-        $match = $markup.$tieredNumber.$title.$markup;
+        $match = $markup.$tieredNumbers.$title.$markup;
 
         // ... and return to original behavior
         $handler->header($match, $state, $pos);
