@@ -127,13 +127,30 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         $this->HeadingCount = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 ];
     }
 
-    protected function initTierFormat($format=null)
+    /**
+     * Set or initialise the numbering format of each tier
+     */
+    protected function setTierFormat($format=null, $tier=null)
     {
+        // setTierFormat($this->getConf('format'));
+        // setTierFormat('["Chapter %d."]', 1);
+
         $format = $format ?? $this->getConf('format');  // JSON array string
-        $this->TierFormat = json_decode($format, true) ?? [];
-        // re-index array from 1, instead of 0
-        array_unshift($this->TierFormat, '');
-        unset($this->TierFormat[0]);
+        $TierFormat = json_decode($format, true) ?? [];
+
+        if ($tier == null) {
+            // initialise numbering format (tier 1 to 5) using config parameter
+            // re-index array from 1, instead of 0
+            array_unshift($TierFormat, '');
+            unset($TierFormat[0]);
+            $this->TierFormat = $TierFormat;
+        } else {
+            // set numbering format of the specified tier and sub-tires
+            foreach ($TierFormat as $k => $value) {
+                $this->TierFormat[$tier + $k] = $value;
+            }
+        }
+        return;
     }
 
     /**
@@ -154,6 +171,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         } else {
             $this->initHeadingCounter();
         }
+        return;
     }
 
     /**
@@ -162,7 +180,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
     protected function getTieredNumbers($level, $offset=null)
     {
         if (!$this->TierFormat) {
-            $this->initTierFormat();
+            $this->setTierFormat($this->getConf('format'));
         }
 
         $offset = $offset ?? max(0, $this->StartLevel -1);
