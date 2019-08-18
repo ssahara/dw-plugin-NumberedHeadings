@@ -43,6 +43,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         // syntax pattern
         $this->pattern[0] = '~~HEADLINE NUMBERING FIRST LEVEL = \d~~';
         $this->pattern[5] = '^[ \t]*={2,} ?-(?: ?#[0-9]+)? [^\n]*={2,}[ \t]*(?=\n)';
+        $this->pattern[5] = '^[ \t]*={2,} ?-[ #"-][^\n]*={2,}[ \t]*(?=\n)';
     }
 
     function connectTo($mode) {
@@ -94,6 +95,20 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
             case '#':
                 [$number, $title] = explode(' ', substr($text, 1), 2);
                 $number = $this->is_digits($number) ? $number +0 : 0;
+                $title = trim($title);
+                break;
+            case '"':
+                if (($i = strpos($text, '"', 1)) !== false) {
+                    $number = substr($text, 1, $i-1);
+                    $title = trim(substr($text, $i+1));
+                } else {
+                    [$number, $title] = explode(' ', substr($text, 1), 2);
+                    $title = trim($title);
+                }
+                break;
+            case '[': // numbering format : eg. == --["[%s]"] ==
+                [$number, $title] = [null, null];
+                $format = rtrim($text);  // should be JSON array string
                 break;
         }
 
@@ -106,8 +121,24 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
             }
         }
 
+        // set numbering format of current tier (and sub-tiers)
+        if (isset($format)) {
+            $this->setTierFormat($format, $tier);
+            return $data = false;
+        }
+
         // set the internal heading counter
         $this->setHeadingCounter($level, $number);
+
+        if ($dash > 1) {  // eg. == -- ==
+            // do not call header() instruction when marked with '--'
+            if (empty($number) && $tier == 1) {
+                // reset the first tier level, which should be decided in next match
+                $this->StartLevel = null;
+                $this->setHeadingCounter();   // init counter
+            }
+            return $data = false;
+        }
 
         // build tiered numbers for hierarchical headings
         $tieredNumbers = $this->getTieredNumbers($level);
