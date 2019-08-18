@@ -89,8 +89,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         // separate param and title
         switch ($text[0]) {
             case ' ':
-                $number = '';
-                $title = trim($text);
+                [$number, $title] = ['', trim($text)];
                 break;
             case '#':
                 [$number, $title] = explode(' ', substr($text, 1), 2);
@@ -108,9 +107,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         }
 
         // set the internal heading counter
-        if (isset($number)) {
-            $this->setHeadingCounter($level, $number);
-        }
+        $this->setHeadingCounter($level, $number);
 
         // build tiered numbers for hierarchical headings
         $tieredNumbers = $this->getTieredNumbers($level);
@@ -178,14 +175,14 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
     /**
      * Set or initialise the internal heading counter
      */
-    protected function setHeadingCounter($level=null, $number=null)
+    protected function setHeadingCounter($level=null, $number='')
     {
         if (isset($level)) {
             // prepare the internal heading counter
             if (!$this->HeadingCount) {
                 $this->initHeadingCounter();
             }
-            $this->HeadingCount[$level] = $number ?? ++$this->HeadingCount[$level];
+            $this->HeadingCount[$level] = $number ?: ++$this->HeadingCount[$level];
             // reset the number of the subheadings
             for ($i = $level +1; $i <= 5; $i++) {
                 $this->HeadingCount[$i] = 0;
