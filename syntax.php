@@ -27,7 +27,8 @@ if(!defined('DOKU_INC')) die();
 
 class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 {
-    function getType() {
+    function getType()
+    {
         return 'substition';
     }
 
@@ -36,7 +37,8 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      */
     protected $mode, $pattern;
 
-    function preConnect() {
+    function preConnect()
+    {
         // syntax mode, drop 'syntax_' from class name
         $this->mode = substr(get_class($this), 7);
 
@@ -46,7 +48,8 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         $this->pattern[5] = '^[ \t]*={2,} ?-[ #"-][^\n]*={2,}[ \t]*(?=\n)';
     }
 
-    function connectTo($mode) {
+    function connectTo($mode)
+    {
         $this->Lexer->addSpecialPattern($this->pattern[0], $mode, $this->mode);
         $this->Lexer->addSpecialPattern($this->pattern[5], $mode, $this->mode);
 
@@ -57,14 +60,31 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
                         '{{startlevel>[1-5]}}', $mode, $this->mode);
     }
 
-    function getSort() {
+    function getSort()
+    {
         return 45;
     }
 
     /**
      * Handle the match
      */
-    function handle($match, $state, $pos, Doku_Handler $handler) {
+    function handle($match, $state, $pos, Doku_Handler $handler)
+    {
+        global $ID;
+
+        // initialise numbering mechanism prior to handle different page
+        // Note: The numbered headings used in localized text files, ie.
+        //       inc/lang/<ISO>/preview.txt  or conf/lang/<ISO>/edit.txt 
+        //       may cause unexpected wrong numbering sequence.
+        //       It is not possible to distinguish them with your wiki pages
+        //       during the handle process. 
+        //       DO NOT USE numbered headings used in localized text files!
+        if ($this->PageID != $ID) {
+            $this->StartLevel = null;
+            $this->setTierFormat($this->getConf('format'));
+            $this->setHeadingCounter();   // init counter
+            $this->PageID = $ID;
+        }
 
         // obtain the startlevel from the page if defined
         $match = trim($match);
@@ -160,7 +180,8 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
     /**
      * Create output
      */
-    function render($format, Doku_Renderer $renderer, $data) {
+    function render($format, Doku_Renderer $renderer, $data)
+    {
         // nothing to do, should never be called
     }
 
@@ -168,6 +189,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      * Numbering feature
      *----------------------------------------------------------------*/
 
+    protected $PageID;
     protected $StartLevel;          // heading level corresponding to the 1st tier
     protected $TierFormat   = [];   // numbering format of each tier
     protected $HeadingCount = [];   // heading counter
