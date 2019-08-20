@@ -80,7 +80,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         //       during the handle process.
         //       DO NOT USE numbered headings used in localized text files!
         if ($this->PageID != $ID) {
-            $this->Tier1 = null;          // heading level of the 1st tier
+            $this->setTier1();            // heading level of the 1st tier
             $this->setTierFormat();       // numbering format of each tier
             $this->setHeadingCounter();   // init counter
             $this->PageID = $ID;
@@ -154,7 +154,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
             // do not call header() instruction when marked with '--'
             if (empty($number) && $tier == 1) {
                 // reset the first tier level, which should be decided in next match
-                $this->Tier1 = null;          // heading level of the 1st tier
+                $this->setTier1();            // heading level of the 1st tier
                 $this->setTierFormat();       // numbering format of each tier
                 $this->setHeadingCounter();   // init counter
             }
@@ -201,9 +201,18 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
     }
 
     /**
+     * Set or initialise the first tier level
+     */
+    public function setTier1($level=null)
+    {
+        $this->Tier1 = $level;
+        return;
+    }
+
+    /**
      * Set or initialise the numbering format of each tier
      */
-    protected function setTierFormat($format=null, $tier=null)
+    public function setTierFormat($format=null, $tier=null)
     {
         // setTierFormat($this->getConf('format'));
         // setTierFormat('["Chapter %d."]', 1);
@@ -229,7 +238,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
     /**
      * Set or initialise the internal heading counter
      */
-    protected function setHeadingCounter($level=null, $number='')
+    public function setHeadingCounter($level=null, $number='')
     {
         if (isset($level)) {
             // prepare the internal heading counter
