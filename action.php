@@ -14,10 +14,30 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin {
      * Registers a callback function for a given event
      */
     function register(Doku_Event_Handler $controller) {
+        $controller->register_hook(
+            'PARSER_HANDLER_DONE', 'AFTER', $this, 'init_numbering', []
+        );
+
         if ($this->getConf('fancy')) {
             $controller->register_hook(
                 'RENDERER_CONTENT_POSTPROCESS', 'AFTER', $this, '_tieredNumber'
             );
+        }
+    }
+
+    /**
+     * PARSER_HANDLER_DONE event handler
+     * 
+     * initialise numbering properties
+     */
+    public function init_numbering(Doku_Event $event)
+    {
+        // load syntax component
+        $numbering = plugin_load('syntax', $this->getPluginName());
+        if ($numbering->getTier1() !== null) {
+            $numbering->setTier1();
+            $numbering->setTierFormat();
+            $numbering->setHeadingCounter();
         }
     }
 

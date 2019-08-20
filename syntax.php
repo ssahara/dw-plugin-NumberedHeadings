@@ -70,22 +70,6 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      */
     function handle($match, $state, $pos, Doku_Handler $handler)
     {
-        global $ID;
-
-        // initialise numbering mechanism prior to handle different page
-        // Note: The numbered headings used in localized text files, ie.
-        //       inc/lang/<ISO>/preview.txt  or conf/lang/<ISO>/edit.txt 
-        //       may cause unexpected wrong numbering sequence.
-        //       It is not possible to distinguish them with your wiki pages
-        //       during the handle process.
-        //       DO NOT USE numbered headings used in localized text files!
-        if ($this->PageID != $ID) {
-            $this->setTier1();            // heading level of the 1st tier
-            $this->setTierFormat();       // numbering format of each tier
-            $this->setHeadingCounter();   // init counter
-            $this->PageID = $ID;
-        }
-
         // obtain the first tier level from the page if defined
         $match = trim($match);
         if ($match[0] !== '=') {
@@ -190,7 +174,6 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      * Numbering feature
      *----------------------------------------------------------------*/
 
-    protected $PageID;
     protected $Tier1;               // heading level corresponding to the 1st tier
     protected $TierFormat   = [];   // numbering format of each tier
     protected $HeadingCount = [];   // heading counter
@@ -201,7 +184,15 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
     }
 
     /**
-     * Set or initialise the first tier level
+     * Get the first tier level
+     */
+    public function getTier1()
+    {
+        return $this->Tier1;
+    }
+
+    /**
+     * Set the first tier level
      */
     public function setTier1($level=null)
     {
