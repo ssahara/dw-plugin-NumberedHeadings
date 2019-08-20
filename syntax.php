@@ -13,8 +13,8 @@
  *          ...
  *
  * Config settings
- *     startlevel: heading level corresponding to the 1st tier (default = 2)
- *     format    : numbering format (used in vsprintf) of each tier, JSON array string
+ *     tier1  : heading level corresponding to the 1st tier (default = 2)
+ *     format : numbering format (used in vsprintf) of each tier, JSON array string
  *     tailingdot: add a tailing dot after sub-tier numbers (default = off)
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
@@ -77,30 +77,30 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         //       inc/lang/<ISO>/preview.txt  or conf/lang/<ISO>/edit.txt 
         //       may cause unexpected wrong numbering sequence.
         //       It is not possible to distinguish them with your wiki pages
-        //       during the handle process. 
+        //       during the handle process.
         //       DO NOT USE numbered headings used in localized text files!
         if ($this->PageID != $ID) {
-            $this->StartLevel = null;
-            $this->setTierFormat($this->getConf('format'));
+            $this->Tier1 = null;          // heading level of the 1st tier
+            $this->setTierFormat();       // numbering format of each tier
             $this->setHeadingCounter();   // init counter
             $this->PageID = $ID;
         }
 
-        // obtain the startlevel from the page if defined
+        // obtain the first tier level from the page if defined
         $match = trim($match);
         if ($match[0] !== '=') {
-            // Note: StartLevel may become 0 (auto-detect?) in the page
-            $this->StartLevel = (int) substr($match, -3, 1);
+            // Note: Tier1 may become 0 (auto-detect?) in the page
+            $this->Tier1 = (int) substr($match, -3, 1);
             return $data = false;
         }
 
         // obtain the level of the heading
         $level = 7 - min(strspn($match, '='), 6);
 
-        if (!$this->StartLevel) {
-            $this->StartLevel = $this->getConf('startlevel') ?: $level;
+        if (!$this->Tier1) {
+            $this->Tier1 = $this->getConf('tier1') ?: $level;
         }
-        $tier = $level - $this->StartLevel +1;
+        $tier = $level - $this->Tier1 +1;
 
         $text = trim(trim($match), '='); // drop heading markup
         $text = ltrim($text);
@@ -154,7 +154,8 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
             // do not call header() instruction when marked with '--'
             if (empty($number) && $tier == 1) {
                 // reset the first tier level, which should be decided in next match
-                $this->StartLevel = null;
+                $this->Tier1 = null;          // heading level of the 1st tier
+                $this->setTierFormat();       // numbering format of each tier
                 $this->setHeadingCounter();   // init counter
             }
             return $data = false;
@@ -190,7 +191,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      *----------------------------------------------------------------*/
 
     protected $PageID;
-    protected $StartLevel;          // heading level corresponding to the 1st tier
+    protected $Tier1;               // heading level corresponding to the 1st tier
     protected $TierFormat   = [];   // numbering format of each tier
     protected $HeadingCount = [];   // heading counter
 
@@ -255,7 +256,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
             $this->setTierFormat($this->getConf('format'));
         }
 
-        $offset = $offset ?? max(0, $this->StartLevel -1);
+        $offset = $offset ?? max(0, $this->Tier1 -1);
 
         if (isset($level) && $offset < $level) {
             $tier = $level - $offset;
