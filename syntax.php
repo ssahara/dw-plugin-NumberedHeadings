@@ -14,6 +14,7 @@
  *
  * Config settings
  *     startlevel: heading level corresponding to the 1st tier (default = 2)
+ *     format : numbering format (used in vsprintf) of each tier, JSON array string
  *     tailingdot: add a tailing dot after sub-tier numbers (default = off)
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
@@ -26,7 +27,8 @@ if(!defined('DOKU_INC')) die();
 
 class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 {
-    function getType() {
+    function getType()
+    {
         return 'substition';
     }
 
@@ -35,7 +37,8 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      */
     protected $mode, $pattern;
 
-    function preConnect() {
+    function preConnect()
+    {
         // syntax mode, drop 'syntax_' from class name
         $this->mode = substr(get_class($this), 7);
 
@@ -44,7 +47,8 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         $this->pattern[5] = '^[ \t]*={2,} ?-(?: ?#[0-9]+)? [^\n]+={2,}[ \t]*(?=\n)';
     }
 
-    function connectTo($mode) {
+    function connectTo($mode)
+    {
         $this->Lexer->addSpecialPattern($this->pattern[0], $mode, $this->mode);
         $this->Lexer->addSpecialPattern($this->pattern[5], $mode, $this->mode);
 
@@ -55,26 +59,29 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
                         '{{startlevel>[1-5]}}', $mode, $this->mode);
     }
 
-    function getSort() {
+    function getSort()
+    {
         return 45;
     }
 
     /**
      * Handle the match
      */
-    function handle($match, $state, $pos, Doku_Handler $handler) {
-
+    function handle($match, $state, $pos, Doku_Handler $handler)
+    {
         // obtain the startlevel from the page if defined
         $match = trim($match);
         if ($match[0] !== '=') {
             $this->StartLevel = (int) substr($match, -3, 1);
             return $data = false;
-        } elseif (!$this->StartLevel) {
-            $this->StartLevel = $this->getConf('startlevel');
         }
 
         // obtain the level of the heading
         $level = 7 - min(strspn($match, '='), 6);
+
+        if (!$this->StartLevel) {
+            $this->StartLevel = $this->getConf('startlevel');
+        }
 
         // obtain number of the heading if defined
         $title = trim($match, '= ');  // drop heading markup
@@ -90,25 +97,26 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         $this->setHeadingCounter($level, $number);
 
         // build tiered numbers for hierarchical headings
+        if (!$this->TierFormat) {
+            $this->setTierFormat($this->getConf('format'));
+        }
         if ($this->StartLevel <= $level) {
             $numbers = array_slice($this->HeadingCount, $this->StartLevel -1, $level - $this->StartLevel +1);
-            $tieredNumber = implode('.', $numbers);
-            if (count($numbers) == 1) {
-                // append always tailing dot for single tiered number
-                $tieredNumber .= '.';
-            } elseif ($this->getConf('tailingdot')) {
-                // append tailing dot if wished
-                $tieredNumber .= '.';
+            $tier = $level - $this->StartLevel +1;
+            if (isset($this->TierFormat[$tier])) {
+                $tieredNumbers = vsprintf($this->TierFormat[$tier], $numbers);
+            } else {
+                $tieredNumbers = implode('.', $numbers);
             }
             // append figure space after tiered number to distinguish title
-            $tieredNumber .= ' '; // U+2007 figure space
+            $tieredNumbers .= ' '; // U+2007 figure space
         } else {
-            $tieredNumber = '';
+            $tieredNumbers = '';
         }
 
         // revise the match
         $markup = str_repeat('=', 7 - $level);
-        $match = $markup.$tieredNumber.$title.$markup;
+        $match = $markup.$tieredNumbers.$title.$markup;
 
         // ... and return to original behavior
         $handler->header($match, $state, $pos);
@@ -119,7 +127,8 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
     /**
      * Create output
      */
-    function render($format, Doku_Renderer $renderer, $data) {
+    function render($format, Doku_Renderer $renderer, $data)
+    {
         // nothing to do, should never be called
     }
 
@@ -128,11 +137,26 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      *----------------------------------------------------------------*/
 
     protected $StartLevel;          // heading level corresponding to the 1st tier
+    protected $TierFormat   = [];   // numbering format of each tier
     protected $HeadingCount = [];   // heading counter
 
     protected function initHeadingCounter()
     {
         $this->HeadingCount = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 ];
+    }
+
+    /**
+     * Set or initialise the numbering format of each tier
+     */
+    protected function setTierFormat($format=null)
+    {
+        // initialise numbering format (tier 1 to 5) using config parameter
+        $format = $format ?? $this->getConf('format');  // JSON array string
+        $TierFormat = json_decode($format, true) ?? [];
+        // re-index array from 1, instead of 0
+        array_unshift($TierFormat, '');
+        unset($TierFormat[0]);
+        $this->TierFormat = $TierFormat;
     }
 
     /**
