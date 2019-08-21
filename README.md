@@ -12,6 +12,7 @@ the actual behavior of the standard headings.
 | tailingdot | add a tailing dot after sub-tier numbers (default = false)              |
 | fancy      | styled heading numbers (default = false)                                |
 
+Default numbering format: `["%s.", "%s.%s", "%s.%s.%s", "%s.%s.%s.%s", "%s.%s.%s.%s.%s"]`
 
 ## Usage
 
