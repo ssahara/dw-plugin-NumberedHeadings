@@ -65,7 +65,8 @@ class helper_plugin_numberedheadings extends DokuWiki_Plugin
             if (!$this->HeadingCount) {
                 $this->initHeadingCounter();
             }
-            $this->HeadingCount[$level] = $number ?: ++$this->HeadingCount[$level];
+            if ($number === '') $number = null;
+            $this->HeadingCount[$level] = $number ?? ++$this->HeadingCount[$level];
             // reset the number of the subheadings
             for ($i = $level +1; $i <= 5; $i++) {
                 $this->HeadingCount[$i] = 0;
