@@ -7,5 +7,5 @@
  */
 
 $meta['startlevel'] = array('multichoice', '_choices' => array(1, 2 ,3, 4, 5));
-$meta['format'] = array('string');
+$meta['format'] = array('string', '_pattern' => '/^\[(?:(?: *\, *| *)(?:"([^"]*)"))*(?: *)\]$/');
 $meta['fancy']  = array('onoff');
