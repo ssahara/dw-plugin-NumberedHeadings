@@ -71,24 +71,26 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         // obtain the first tier (Tier1) level from the page if defined
         $match = trim($match);
         if ($match[0] !== '=') {
-            // Note: StartLevel may become 0 (auto-detect?) in the page
+            // Note: The 1st tier Level may become 0 (auto-detect?) in the page
             $level = (int) substr($match, -3, 1);
-            return $data = [$level, null, null];
+            return $data = [$level];
         }
 
         // obtain the level of the heading
         $level = 7 - min(strspn($match, '='), 6);
 
         // obtain number of the heading if defined
-        $title = trim($match, '= ');  // drop heading markup
-        $title = ltrim($title, '- '); // not drop tailing -
-        if ($title[0] === '#') {
-            $title = substr($title, 1); // drop #
+        $text = trim($match, '= ');  // drop heading markup
+        $text = ltrim($text, '- ');  // not drop tailing -
+
+        if ($text[0] === '#') {
+            $title = substr($text, 1); // drop #
             $i = strspn($title, '0123456789');
             $number = substr($title, 0, $i) + 0;
             $title  = ltrim(substr($title, $i));
         } else {
             $number = '';
+            $title  = $text;
         }
 
         return $data = [$level, $number, $title];
