@@ -7,8 +7,8 @@
  * @author     Satoshi Sahara <sahara.satoshi@gmail.com>
  *
  * Config settings
- *     startlevel : heading level corresponding to the 1st tier (default = 2)
- *     format     : numbering format (used in vsprintf) of each tier, JSON array string
+ *     tier1  : heading level corresponding to the 1st tier
+ *     format : numbering format (used in vsprintf) of each tier, JSON array string
  */
 if (!defined('DOKU_INC')) die();
 

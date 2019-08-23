@@ -13,7 +13,7 @@
  *          ...
  *
  * Config settings
- *     startlevel: heading level corresponding to the 1st tier (default = 2)
+ *     tier1  : heading level corresponding to the 1st tier
  *     format : numbering format (used in vsprintf) of each tier, JSON array string
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
@@ -91,7 +91,6 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
             $number = '';
         }
 
-        // plugin instruction is converted to header in PARSER_HANDLER_DONE event handler
         return $data = [$level, $number, $title];
     }
 
@@ -100,6 +99,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      */
     function render($format, Doku_Renderer $renderer, $data)
     {
-        // nothing to do, should never be called
+        // nothing to do, should never be called because plugin instructions
+        // are converted to normal headers in PARSER_HANDLER_DONE event handler
     }
 }

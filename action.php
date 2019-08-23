@@ -42,17 +42,19 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
             if ($ins[0] == 'plugin' && $ins[1][0] == 'numberedheadings') {
                 [$level, $number, $title] = $ins[1][1];
 
-                // obtain the first level (Tier1) from the page if defined
-                if ($title === null) {
+                // obtain the first tier (Tier1) level from the page if defined
+                if ($number === null) {
                     $numbering->setTier1($level);
                     continue;
                 }
 
+                // auto-detect the first tier (Tier1) level
                 if (!$numbering->getTier1()) {
-                    $numbering->setTier1($this->getConf('startlevel'));
+                    $tier1 = $this->getConf('tier1') ?: $level;
+                    $numbering->setTier1($tier1);
                 }
 
-                // set the internal heading counter
+                // set the heading counter
                 $numbering->setHeadingCounter($level, $number);
                 
                 // build tiered numbers for hierarchical headings

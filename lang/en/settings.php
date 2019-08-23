@@ -7,6 +7,7 @@
  */
 
 // for the configuration manager
-$lang['startlevel'] = 'level to start with numbered headings';
+$lang['tier1']  = 'heading level corresponding to the 1st tier';
+$lang['tier1_o_0'] = 'auto-detect';
 $lang['format'] = 'numbering (vsprintf) format of each tier (JSON array)';
 $lang['fancy']  = 'enclose tiered numbers in span tag to enable css rules';
