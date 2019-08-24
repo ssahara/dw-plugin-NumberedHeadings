@@ -13,9 +13,8 @@
  *          ...
  *
  * Config settings
- *     startlevel: heading level corresponding to the 1st tier (default = 2)
+ *     tier1  : heading level corresponding to the 1st tier
  *     format : numbering format (used in vsprintf) of each tier, JSON array string
- *     tailingdot: add a tailing dot after sub-tier numbers (default = off)
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Lars J. Metz <dokuwiki@meistermetz.de>
@@ -69,59 +68,49 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      */
     function handle($match, $state, $pos, Doku_Handler $handler)
     {
-        // obtain the startlevel from the page if defined
+        // obtain the first tier (Tier1) level from the page if defined
         $match = trim($match);
         if ($match[0] !== '=') {
-            $this->StartLevel = (int) substr($match, -3, 1);
-            return $data = false;
+            // Note: The 1st tier Level may become 0 (auto-detect?) in the page
+            $level = (int) substr($match, -3, 1);
+            return $data = [$level];
         }
 
         // obtain the level of the heading
         $level = 7 - min(strspn($match, '='), 6);
 
-        if (!$this->StartLevel) {
-            $this->StartLevel = $this->getConf('startlevel');
+        // separate parameter and title
+        // == -#n title  == ; "#" is a parameter indicates number
+        // == - #n title == ; "#" is a placeholder of numbering label
+
+        $text = trim(trim($match), '='); // drop heading markup
+        $text = ltrim($text);
+        $dash = strspn($text, '-');      // count dash marker to check '-' or '--'
+        $text = substr($text, $dash);
+
+        switch ($text[0]) {
+            case ' ':
+                [$number, $title] = ['', trim($text)];
+                if ($title[0] == '#') {
+                    // extra check of title
+                    // == - # title ==     ; "#" is NOT numbering label
+                    // == - #12 title ==   ; "#" is numbering label with number
+                    // == - #12.3 title == ; "#" is NOT numbering label
+                    $part = explode(' ', substr($title, 1), 2);
+                    if (ctype_digit($part[0])) {
+                        $number = $part[0] +0;
+                        $title  = trim($part[1]);
+                    }
+                }
+                break;
+            case '#':
+                [$number, $title] = explode(' ', substr($text, 1), 2);
+                $number = ctype_digit($number) ? $number +0 : '';
+                $title  = trim($title);
+                break;
         }
 
-        // obtain number of the heading if defined
-        $title = trim($match, '= ');  // drop heading markup
-        $title = ltrim($title, '- '); // not drop tailing -
-        if ($title[0] === '#') {
-            $title = substr($title, 1); // drop #
-            $i = strspn($title, '0123456789');
-            $number = substr($title, 0, $i) + 0;
-            $title  = ltrim(substr($title, $i));
-        }
-
-        // set the internal heading counter
-        $this->setHeadingCounter($level, $number);
-
-        // build tiered numbers for hierarchical headings
-        if (!$this->TierFormat) {
-            $this->setTierFormat($this->getConf('format'));
-        }
-        if ($this->StartLevel <= $level) {
-            $numbers = array_slice($this->HeadingCount, $this->StartLevel -1, $level - $this->StartLevel +1);
-            $tier = $level - $this->StartLevel +1;
-            if (isset($this->TierFormat[$tier])) {
-                $tieredNumbers = vsprintf($this->TierFormat[$tier], $numbers);
-            } else {
-                $tieredNumbers = implode('.', $numbers);
-            }
-            // append figure space after tiered number to distinguish title
-            $tieredNumbers .= ' '; // U+2007 figure space
-        } else {
-            $tieredNumbers = '';
-        }
-
-        // revise the match
-        $markup = str_repeat('=', 7 - $level);
-        $match = $markup.$tieredNumbers.$title.$markup;
-
-        // ... and return to original behavior
-        $handler->header($match, $state, $pos);
-
-        return $data = false;
+        return $data = [$level, $number, $title];
     }
 
     /**
@@ -129,54 +118,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      */
     function render($format, Doku_Renderer $renderer, $data)
     {
-        // nothing to do, should never be called
+        // nothing to do, should never be called because plugin instructions
+        // are converted to normal headers in PARSER_HANDLER_DONE event handler
     }
-
-    /*----------------------------------------------------------------*
-     * Numbering feature
-     *----------------------------------------------------------------*/
-
-    protected $StartLevel;          // heading level corresponding to the 1st tier
-    protected $TierFormat   = [];   // numbering format of each tier
-    protected $HeadingCount = [];   // heading counter
-
-    protected function initHeadingCounter()
-    {
-        $this->HeadingCount = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 ];
-    }
-
-    /**
-     * Set or initialise the numbering format of each tier
-     */
-    protected function setTierFormat($format=null)
-    {
-        // initialise numbering format (tier 1 to 5) using config parameter
-        $format = $format ?? $this->getConf('format');  // JSON array string
-        $TierFormat = json_decode($format, true) ?? [];
-        // re-index array from 1, instead of 0
-        array_unshift($TierFormat, '');
-        unset($TierFormat[0]);
-        $this->TierFormat = $TierFormat;
-    }
-
-    /**
-     * Set or initialise the internal heading counter
-     */
-    protected function setHeadingCounter($level=null, $number=null)
-    {
-        if (isset($level)) {
-            // prepare the internal heading counter
-            if (!$this->HeadingCount) {
-                $this->initHeadingCounter();
-            }
-            $this->HeadingCount[$level] = $number ?? ++$this->HeadingCount[$level];
-            // reset the number of the subheadings
-            for ($i = $level +1; $i <= 5; $i++) {
-                $this->HeadingCount[$i] = 0;
-            }
-        } else {
-            $this->initHeadingCounter();
-        }
-    }
-
 }

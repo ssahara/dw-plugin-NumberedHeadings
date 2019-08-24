@@ -6,6 +6,6 @@
  * @author     Satoshi Sahara <sahara.satoshi@gmail.com>
  */
 
-$meta['startlevel'] = array('multichoice', '_choices' => array(1, 2 ,3, 4, 5));
-$meta['format'] = array('string');
+$meta['tier1']  = array('multichoice', '_choices' => array(0, 1, 2 ,3, 4, 5));
+$meta['format'] = array('string', '_pattern' => '/^\[(?:(?: *\, *| *)(?:"([^"]*)"))*(?: *)\]$/');
 $meta['fancy']  = array('onoff');
