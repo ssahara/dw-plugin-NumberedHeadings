@@ -46,8 +46,11 @@ class helper_plugin_numberedheadings extends DokuWiki_Plugin
     public function setTierFormat($format=null)
     {
         // initialise numbering format (tier 1 to 5) using config parameter
-        $format = $format ?? $this->getConf('format');  // JSON array string
-        $TierFormat = json_decode($format, true) ?? [];
+        if (empty($format)) {
+            $format = $this->getConf('format');  // JSON array string
+        }
+        $TierFormat = json_decode($format, true);
+        if ($TierFormat === null) $TierFormat = [];
         // re-index array from 1, instead of 0
         array_unshift($TierFormat, '');
         unset($TierFormat[0]);
@@ -66,7 +69,9 @@ class helper_plugin_numberedheadings extends DokuWiki_Plugin
                 $this->initHeadingCounter();
             }
             if ($number === '') $number = null;
-            $this->HeadingCount[$level] = $number ?? ++$this->HeadingCount[$level];
+            $this->HeadingCount[$level] = isset($number)
+                ? $number
+                : ++$this->HeadingCount[$level];
             // reset the number of the subheadings
             for ($i = $level +1; $i <= 5; $i++) {
                 $this->HeadingCount[$i] = 0;
@@ -86,7 +91,9 @@ class helper_plugin_numberedheadings extends DokuWiki_Plugin
             $this->setTierFormat($this->getConf('format'));
         }
 
-        $offset = $offset ?? max(0, $this->Tier1Level -1);
+        if (!isset($offset)) {
+            $offset = max(0, $this->Tier1Level -1);
+        }
         if (isset($level) && $offset < $level) {
             $tier = $level - $offset;
             $numbers = array_slice($this->HeadingCount, $offset, $tier);
