@@ -79,18 +79,35 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         // obtain the level of the heading
         $level = 7 - min(strspn($match, '='), 6);
 
-        // obtain number of the heading if defined
-        $text = trim($match, '= ');  // drop heading markup
-        $text = ltrim($text, '- ');  // not drop tailing -
+        // separate parameter and title
+        // == -#n title  == ; "#" is a parameter indicates number
+        // == - #n title == ; "#" is a placeholder of numbering label
 
-        if ($text[0] === '#') {
-            $title = substr($text, 1); // drop #
-            $i = strspn($title, '0123456789');
-            $number = substr($title, 0, $i) + 0;
-            $title  = ltrim(substr($title, $i));
-        } else {
-            $number = '';
-            $title  = $text;
+        $text = trim(trim($match), '='); // drop heading markup
+        $text = ltrim($text);
+        $dash = strspn($text, '-');      // count dash marker to check '-' or '--'
+        $text = substr($text, $dash);
+
+        switch ($text[0]) {
+            case ' ':
+                [$number, $title] = ['', trim($text)];
+                if ($title[0] == '#') {
+                    // extra check of title
+                    // == - # title ==     ; "#" is NOT numbering label
+                    // == - #12 title ==   ; "#" is numbering label with number
+                    // == - #12.3 title == ; "#" is NOT numbering label
+                    $part = explode(' ', substr($title, 1), 2);
+                    if (ctype_digit($part[0])) {
+                        $number = $part[0] +0;
+                        $title  = trim($part[1]);
+                    }
+                }
+                break;
+            case '#':
+                [$number, $title] = explode(' ', substr($text, 1), 2);
+                $number = ctype_digit($number) ? $number +0 : '';
+                $title  = trim($title);
+                break;
         }
 
         return $data = [$level, $number, $title];
