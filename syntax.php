@@ -71,9 +71,9 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         // obtain the first tier (Tier1) level from the page if defined
         $match = trim($match);
         if ($match[0] !== '=') {
-            // Note: The 1st tier Level may become 0 (auto-detect?) in the page
+            // Note: The Tier1 Level may become 0 (auto-detect) in the page
             $level = (int) substr($match, -3, 1);
-            return $data = [$level];
+            return $data = compact('level');
         }
 
         // obtain the level of the heading
@@ -103,14 +103,15 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
                     }
                 }
                 break;
-            case '#':
+            case '#': // numeric numbering, (integer) $number
                 [$number, $title] = explode(' ', substr($text, 1), 2);
                 $number = ctype_digit($number) ? $number +0 : '';
                 $title  = trim($title);
                 break;
         }
 
-        return $data = [$level, $number, $title];
+        $data = compact('dash', 'level', 'number', 'title');
+        return $data;
     }
 
     /**
