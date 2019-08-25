@@ -42,19 +42,28 @@ class helper_plugin_numberedheadings extends DokuWiki_Plugin
 
     /**
      * Set or initialise the numbering format of each tier
+     *
+     * usage: setTierFormat('["Chapter %d."]', 1);
      */
-    public function setTierFormat($format=null)
+    public function setTierFormat($format=null, $tier=null)
     {
-        // initialise numbering format (tier 1 to 5) using config parameter
         if (empty($format)) {
             $format = $this->getConf('format');  // JSON array string
         }
         $TierFormat = json_decode($format, true);
         if ($TierFormat === null) $TierFormat = [];
-        // re-index array from 1, instead of 0
-        array_unshift($TierFormat, '');
-        unset($TierFormat[0]);
-        $this->TierFormat = $TierFormat;
+        if ($tier === null) {
+            // initialise numbering format (tier 1 to 5) using config parameter
+            // re-index array from 1, instead of 0
+            array_unshift($TierFormat, '');
+            unset($TierFormat[0]);
+            $this->TierFormat = $TierFormat;
+        } else {
+            // set numbering format of the specified tier and sub-tires
+            foreach ($TierFormat as $k => $value) {
+                $this->TierFormat[$tier + $k] = $value;
+            }
+        }
         return;
     }
 

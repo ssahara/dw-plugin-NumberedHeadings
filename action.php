@@ -40,13 +40,16 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
 
         foreach ($instructions as $k => &$ins) {
             if ($ins[0] == 'plugin' && $ins[1][0] == 'numberedheadings') {
-                if (count($ins[1][1]) == 1) { // data
+                // initialise variables to be extracted from data array
+                // that was compacted in handle() process
+                unset($dash, $level, $number, $title);
+                extract($ins[1][1]);
+
+                if (!isset($dash)) { // not numbered headings
                     // set tier1 only
-                    [$level] =  $ins[1][1];
                     $numbering->setTier1($level);
+                  //unset($instructions[$k]);
                     continue;
-                } else {
-                    [$level, $number, $title] = $ins[1][1];
                 }
 
                 // auto-detect the first tier (Tier1) level
@@ -57,7 +60,7 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
 
                 // set the heading counter
                 $numbering->setHeadingCounter($level, $number);
-                
+
                 // build tiered numbers for hierarchical headings
                 $tieredNumbers = $numbering->getTieredNumbers($level);
                 if ($tieredNumbers) {
