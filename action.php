@@ -5,8 +5,7 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Satoshi Sahara <sahara.satoshi@gmail.com>
  */
-
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
 class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
 {
@@ -53,9 +52,32 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
                 }
 
                 // auto-detect the first tier (Tier1) level
-                if (!$numbering->getTier1()) {
+                $tier1 = $numbering->getTier1();
+                if (!$tier1) {
                     $tier1 = $this->getConf('tier1') ?: $level;
                     $numbering->setTier1($tier1);
+                }
+                $tier = $level - $tier1 +1;
+
+                // non-visible numbered headings, marked with '--'
+                if ($dash > 1) {
+                    // set the heading counter only if number seems meaningful
+                    if ($number !== '') {
+                        $numbering->setHeadingCounter($level, $number);
+                    }
+
+                    // reset numbering feature
+                    if (isset($title) && $title === '' && $tier === 1) {
+                        // the first tier (Tier1) level should be decided in next match
+                        $numbering->setTier1();
+                        $numbering->setTierFormat();
+                        $numbering->setHeadingCounter();
+                    } elseif (isset($format)) {
+                        // set numbering format of current tier (and subtiers) in the page
+                        $numbering->setTierFormat($format, $tier);
+                    }
+                  //unset($instructions[$k]);
+                    continue;
                 }
 
                 // set the heading counter
