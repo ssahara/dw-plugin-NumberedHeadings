@@ -90,7 +90,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 
         switch ($text[0]) {
             case ' ':
-                [$number, $title] = ['', trim($text)];
+                list($number, $title) = array('', trim($text));
                 if ($title[0] == '#') {
                     // extra check of title
                     // == - # title ==     ; "#" is NOT numbering label
@@ -104,7 +104,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
                 }
                 break;
             case '#': // numeric numbering, (integer) $number
-                [$number, $title] = explode(' ', substr($text, 1), 2);
+                list($number, $title) = explode(' ', substr($text, 1), 2);
                 $number = ctype_digit($number) ? $number +0 : '';
                 $title  = trim($title);
                 break;
