@@ -43,7 +43,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 
         // syntax pattern
         $this->pattern[0] = '~~HEADLINE NUMBERING FIRST LEVEL = \d~~';
-        $this->pattern[5] = '^[ \t]*={2,} ?-(?: ?#[0-9]+)? [^\n]+={2,}[ \t]*(?=\n)';
+        $this->pattern[5] = '^[ \t]*={2,} ?-+(?: ?#[0-9]+)? [^\n]*={2,}[ \t]*(?=\n)';
     }
 
     function connectTo($mode)
