@@ -22,7 +22,7 @@
  */
 
 // must be run within DokuWiki
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
 class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 {
@@ -43,7 +43,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 
         // syntax pattern
         $this->pattern[0] = '~~HEADLINE NUMBERING FIRST LEVEL = \d~~';
-        $this->pattern[5] = '^[ \t]*={2,} ?-(?: ?#[0-9]+)? [^\n]+={2,}[ \t]*(?=\n)';
+        $this->pattern[5] = '^[ \t]*={2,} ?-+(?: ?#[0-9]+)? [^\n]*={2,}[ \t]*(?=\n)';
     }
 
     function connectTo($mode)
@@ -110,7 +110,13 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
                 break;
         }
 
-        $data = compact('dash', 'level', 'number', 'title');
+        // non-visible numbered headings, marked with '--'
+        if ($dash > 1 && $title[0] == '[' && substr($title, -1) == ']') {
+            $format = $title;
+            unset($title);
+        }
+
+        $data = compact('dash', 'level', 'number', 'title', 'format');
         return $data;
     }
 
