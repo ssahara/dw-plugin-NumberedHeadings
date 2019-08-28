@@ -62,7 +62,7 @@ are not rendered, but can be used to sepecify level numbers or tier format.
 
     assume config tier1 is set to 0
     === --#1000 ["(%04d)"] ===   ... set number and tier format of the level
-    === - item 1 ===    ¨ (1001) item 1
+    === - item 1 ===    â†’ (1001) item 1
     === -- ===             ... initialise tier1, format, headings counter
-    ==== - item 2 ====  ¨ 1. item 2
+    ==== - item 2 ====  â†’ 1. item 2
 
