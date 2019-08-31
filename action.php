@@ -104,12 +104,12 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
 
     /**
      * RENDERER_CONTENT_POSTPROCESS
-     * enclose tiered numbers for hierarchical headings in span tag
+     * enclose tiered numbers of hierarchical headings in span tag
      */
     function _tieredNumber(Doku_Event $event)
     {
         if ($event->data[0] == 'xhtml') {
-            $search = '/(<h\d.*?>)([\d.]+)(?: )/u'; // U+2007 figure space
+            $search = '#(<h\d.*?>)(.+?)(?: )(?=.*?</h\d>)#u'; // U+2007 figure space
             $replacement = '${1}<span class="plugin_numberedheadings">${2}</span>'."\t";
             $event->data[1] = preg_replace($search, $replacement, $event->data[1]);
         }
