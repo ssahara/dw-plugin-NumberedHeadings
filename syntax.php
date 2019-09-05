@@ -44,6 +44,9 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         // syntax pattern
         $this->pattern[0] = '~~HEADLINE NUMBERING FIRST LEVEL = \d~~';
         $this->pattern[5] = '^[ \t]*={2,} ?-+(?: ?#[0-9]+)? [^\n]*={2,}[ \t]*(?=\n)';
+        if (file_exists(__DIR__ . '/EXPERIMENTAL')) {
+            $this->pattern[5] = '^[ \t]*={2,} ?-+(?:[#"][^\n]*)? [^\n]*={2,}[ \t]*(?=\n)';
+        }
     }
 
     function connectTo($mode)
@@ -107,6 +110,16 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
                 list($number, $title) = explode(' ', substr($text, 1), 2);
                 $number = ctype_digit($number) ? $number +0 : '';
                 $title  = trim($title);
+                break;
+            case '"': // alpha-numeric numbering, (string) $number
+                $closed = strpos($text, '"', 1); // search closing "
+                if ($closed !== false) {
+                    $number = substr($text, 1, $closed -1);
+                    $title  = trim(substr($text, $closed + 1));
+                } else {
+                    list($number, $title) = explode(' ', substr($text, 1), 2);
+                    $title  = trim($title);
+                }
                 break;
         }
 
