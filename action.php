@@ -66,15 +66,16 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
                         $numbering->setHeadingCounter($level, $number);
                     }
 
-                    // reset numbering feature
-                    if (isset($title) && $title === '' && $tier === 1) {
+                    if (isset($format)) {
+                        // set numbering format of current tier (and subtiers) in the page
+                        $numbering->setTierFormat($format, $tier);
+
+                    } elseif ($number === '' && $title === '' && $tier == 1) {
+                        // reset numbering feature
                         // the first tier (Tier1) level should be decided in next match
                         $numbering->setTier1();
                         $numbering->setTierFormat();
                         $numbering->setHeadingCounter();
-                    } elseif (isset($format)) {
-                        // set numbering format of current tier (and subtiers) in the page
-                        $numbering->setTierFormat($format, $tier);
                     }
                   //unset($instructions[$k]);
                     continue;
@@ -97,6 +98,7 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
             }
         }
         unset($ins);
+        // reset numbering feature prior to process other pages
         $numbering->setTier1();
         $numbering->setTierFormat();
         $numbering->setHeadingCounter();
