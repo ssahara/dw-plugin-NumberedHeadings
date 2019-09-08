@@ -70,7 +70,7 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
                         // set numbering format of current tier (and subtiers) in the page
                         $numbering->setTierFormat($format, $tier);
 
-                    } elseif ($number === '' && $title === '' && $tier == 1) {
+                    } elseif ($dash > 2 || $number === '' && $title === '' && $tier == 1) {
                         // reset numbering feature
                         // the first tier (Tier1) level should be decided in next match
                         $numbering->setTier1();
