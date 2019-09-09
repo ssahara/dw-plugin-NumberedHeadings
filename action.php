@@ -41,7 +41,7 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
             if ($ins[0] == 'plugin' && $ins[1][0] == 'numberedheadings') {
                 // initialise variables to be extracted from data array
                 // that was compacted in handle() process
-                unset($dash, $level, $number, $title);
+                unset($dash, $level, $number, $title, $format);
                 extract($ins[1][1]);
 
                 if (!isset($dash)) { // not numbered headings
@@ -98,7 +98,7 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
             }
         }
         unset($ins);
-        // reset numbering feature prior to process other pages        
+        // reset numbering feature prior to process other pages
         $numbering->setTier1();
         $numbering->setTierFormat();
         $numbering->setHeadingCounter();

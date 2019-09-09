@@ -15,10 +15,10 @@ default numbering format: `["%d.", "%d.%d", "%d.%d.%d", "%d.%d.%d.%d", "%d.%d.%d
 
 ## Usage
 
-Adding a "`-`" before the heading text will make the headings tiered-numbered.
+Adding a `-` before the heading text will make the headings tiered-numbered.
 You can choose the first tier level (**tier1**) in the Configration manager.
 The **tier1** may be a fixed value (eg. level 2) or auto-detected in the page.
-You can use "`-#<number>`" to set number of the heading.
+You can use `-#<number>` to set number of the heading.
 
     ====== - Level 1 Headline ======
     ===== - Level 2 Headline =====
@@ -57,7 +57,7 @@ Some format examples:
 
 ### Control numbering feature
 
-The numbered headings that are prefixed with "`--`" (instead of single "`-`") 
+The numbered headings that are prefixed with `--` (instead of single `-`) 
 are not rendered, but can be used to sepecify level numbers or tier format.
 
     assume config tier1 is set to 0
@@ -65,4 +65,14 @@ are not rendered, but can be used to sepecify level numbers or tier format.
     === - item 1 ===    → (1001) item 1
     === -- ===             ... initialise tier1, format, headings counter
     ==== - item 2 ====  → 1. item 2
+
+### Experimental: Alpha-numeric numbering
+
+Character variables can be incremented in PHP, like A0, A1, A2 ...
+You can use `-"<string>"` to set number string of the heading.
+
+    === --"A0" ["%s."] ===
+    === - item a1 ===   → A1. item a1
+    === - item a2 ===   → A2. item a2
+    == - item a2.1 ==   → A2.1 item a2.1
 
