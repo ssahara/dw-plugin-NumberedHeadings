@@ -117,7 +117,22 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         }
 
         $data = compact('dash', 'level', 'number', 'title', 'format');
-        return $data;
+
+        if ($dash == 1) {
+            // do same as parser::handler->header()
+            if ($handler->status['section']) {
+                $handler->_addCall('section_close', [], $pos);
+            }
+            // plugin instruction to be rewrited later
+            $plugin = substr(get_class($this), 14);
+            $handler->addPluginCall($plugin, $data, $state, $pos, $match);
+
+            $handler->_addCall('section_open', [$level], $pos);
+            $this->status['section'] = true;
+        } else {
+            return $data;
+        }
+        return false;
     }
 
     /**
