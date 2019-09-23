@@ -38,64 +38,84 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
         $instructions =& $event->data->calls;
 
         foreach ($instructions as $k => &$ins) {
-            if ($ins[0] == 'plugin' && $ins[1][0] == 'numberedheadings') {
+            if (isset($dash)) {
                 // initialise variables to be extracted from data array
                 // that was compacted in handle() process
                 unset($dash, $level, $number, $title, $format);
-                extract($ins[1][1]);
-
-                if (!isset($dash)) { // not numbered headings
-                    // set tier1 only
-                    $numbering->setTier1($level);
-                  //unset($instructions[$k]);
-                    continue;
-                }
-
-                // auto-detect the first tier (Tier1) level
-                $tier1 = $numbering->getTier1();
-                if (!$tier1) {
-                    $tier1 = $this->getConf('tier1') ?: $level;
-                    $numbering->setTier1($tier1);
-                }
-                $tier = $level - $tier1 +1;
-
-                // non-visible numbered headings, marked with '--'
-                if ($dash > 1) {
-                    // set the heading counter only if number seems meaningful
-                    if ($number !== '') {
-                        $numbering->setHeadingCounter($level, $number);
-                    }
-
-                    if (isset($format)) {
-                        // set numbering format of current tier (and subtiers) in the page
-                        $numbering->setTierFormat($format, $tier);
-
-                    } elseif ($dash > 2 || $number === '' && $title === '' && $tier == 1) {
-                        // reset numbering feature
-                        // the first tier (Tier1) level should be decided in next match
-                        $numbering->setTier1();
-                        $numbering->setTierFormat();
-                        $numbering->setHeadingCounter();
-                    }
-                  //unset($instructions[$k]);
-                    continue;
-                }
-
-                // set the heading counter
-                $numbering->setHeadingCounter($level, $number);
-
-                // build tiered numbers for hierarchical headings
-                $tieredNumbers = $numbering->getTieredNumbers($level);
-                if ($tieredNumbers) {
-                    // append figure space after tiered number to distinguish title
-                    $tieredNumbers .= ' '; // U+2007 figure space
-                }
-                $text = $tieredNumbers.$title;
-
-                // rewrite plugin call to header
-                $ins[0] = 'header';
-                $ins[1] = [$text, $level, $ins[2]];
             }
+
+            $call = ($ins[0] == 'plugin') ? 'plugin_'.$ins[1][0] : $ins[0];
+            switch ($call) {
+                case 'header':
+                    [$text, $level, $pos] = $ins[1];
+                    // chcek whether $text is JSON string?
+                    if ($text[0] !== '{' || substr($text, -1) !== '}') {
+                        continue 2;
+                    } else {
+                        $data = json_decode($text, true);
+                        extract($data);  // retrieve number, title
+                        $dash = 1;
+                    }
+                    break;
+                case 'plugin_numberedheadings':
+                    extract($ins[1][1]);
+                    break;
+                default:
+                    continue 2;
+            }
+
+            if (!isset($dash)) { // not numbered headings
+                // set tier1 only
+                $numbering->setTier1($level);
+              //unset($instructions[$k]);
+                $dash = 0;
+                continue;
+            }
+
+            // auto-detect the first tier (Tier1) level
+            $tier1 = $numbering->getTier1();
+            if (!$tier1) {
+                $tier1 = $this->getConf('tier1') ?: $level;
+                $numbering->setTier1($tier1);
+            }
+            $tier = $level - $tier1 +1;
+
+            // non-visible numbered headings, marked with '--'
+            if ($dash > 1) {
+                // set the heading counter only if number seems meaningful
+                if ($number !== '') {
+                    $numbering->setHeadingCounter($level, $number);
+                }
+
+                if (isset($format)) {
+                    // set numbering format of current tier (and subtiers) in the page
+                    $numbering->setTierFormat($format, $tier);
+
+                } elseif ($dash > 2 || $number === '' && $title === '' && $tier == 1) {
+                    // reset numbering feature
+                    // the first tier (Tier1) level should be decided in next match
+                    $numbering->setTier1();
+                    $numbering->setTierFormat();
+                    $numbering->setHeadingCounter();
+                }
+              //unset($instructions[$k]);
+                continue;
+            }
+
+            // set the heading counter
+            $numbering->setHeadingCounter($level, $number);
+
+            // build tiered numbers for hierarchical headings
+            $tieredNumbers = $numbering->getTieredNumbers($level);
+            if ($tieredNumbers) {
+                // append figure space after tiered number to distinguish title
+                $tieredNumbers .= ' '; // U+2007 figure space
+            }
+            $text = $tieredNumbers.$title;
+
+            // rewrite header instruction
+          //$ins[0] = 'header';
+            $ins[1] = [$text, $level, $pos];
         }
         unset($ins);
         // reset numbering feature prior to process other pages
