@@ -49,16 +49,17 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
                 case 'header':
                     [$text, $level, $pos] = $ins[1];
                     // chcek whether $text is JSON string?
-                    if ($text[0] !== '{' || substr($text, -1) !== '}') {
-                        continue 2;
-                    } else {
-                        $data = json_decode($text, true);
+                    $data = json_decode($text, true);
+                    if (json_last_error() == JSON_ERROR_NONE) {
                         extract($data);  // retrieve number, title
                         $dash = 1;
+                    } else {
+                        continue 2;
                     }
                     break;
                 case 'plugin_numberedheadings':
-                    extract($ins[1][1]);
+                    $data = $ins[1][1];
+                    extract($data);
                     break;
                 default:
                     continue 2;
