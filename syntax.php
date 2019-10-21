@@ -128,6 +128,9 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 
         if ($dash === 1) {
             // rewrite the matched text to JSON string and call header method
+            // NOTE: plugins can not know section status by $handler->status property
+            //       which is protected visibility, section status must be handled
+            //       by $handler->header() method.
             $data = compact('number', 'title');
             $markup = str_repeat('=', 7 - $level);
             $match = $markup.json_encode($data).$markup;
