@@ -26,8 +26,8 @@ if (!defined('DOKU_INC')) die();
 
 class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 {
-    function getType()
-    {
+    public function getType()
+    {   // Syntax Type
         return 'substition';
     }
 
@@ -36,7 +36,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
      */
     protected $mode, $pattern;
 
-    function preConnect()
+    public function preConnect()
     {
         // syntax mode, drop 'syntax_' from class name
         $this->mode = substr(get_class($this), 7);
@@ -46,7 +46,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         $this->pattern[5] = '^[ \t]*={2,} ?-+(?:[#"][^\n]*)? [^\n]*={2,}[ \t]*(?=\n)';
     }
 
-    function connectTo($mode)
+    public function connectTo($mode)
     {
         $this->Lexer->addSpecialPattern($this->pattern[0], $mode, $this->mode);
         $this->Lexer->addSpecialPattern($this->pattern[5], $mode, $this->mode);
@@ -58,15 +58,15 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
                         '{{startlevel>[1-5]}}', $mode, $this->mode);
     }
 
-    function getSort()
-    {
+    public function getSort()
+    {   // sort number used to determine priority of this mode
         return 45;
     }
 
     /**
      * Handle the match
      */
-    function handle($match, $state, $pos, Doku_Handler $handler)
+    public function handle($match, $state, $pos, Doku_Handler $handler)
     {
         // obtain the first tier (Tier1) level from the page if defined
         $match = trim($match);
@@ -143,7 +143,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
     /**
      * Create output
      */
-    function render($format, Doku_Renderer $renderer, $data)
+    public function render($format, Doku_Renderer $renderer, $data)
     {
         // nothing to do, should never be called because plugin instructions
         // are converted to normal headers in PARSER_HANDLER_DONE event handler

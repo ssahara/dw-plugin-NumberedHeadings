@@ -12,7 +12,7 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
     /**
      * Registers a callback function for a given event
      */
-    function register(Doku_Event_Handler $controller)
+    public function register(Doku_Event_Handler $controller)
     {
         $controller->register_hook(
             'PARSER_HANDLER_DONE', 'BEFORE', $this, '_numbering', []
@@ -29,7 +29,7 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
      * PARSER_HANDLER_DONE event handler
      * convert plugin instruction to header
      */
-    function _numbering(Doku_Event $event)
+    public function _numbering(Doku_Event $event)
     {
         // load helper object
         static $numbering;
@@ -129,7 +129,7 @@ class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
      * RENDERER_CONTENT_POSTPROCESS
      * enclose tiered numbers of hierarchical headings in span tag
      */
-    function _tieredNumber(Doku_Event $event)
+    public function _tieredNumber(Doku_Event $event)
     {
         if ($event->data[0] == 'xhtml') {
             $search = '#(<h\d.*?>)(.+?)(?: )(?=.*?</h\d>)#u'; // U+2007 figure space
