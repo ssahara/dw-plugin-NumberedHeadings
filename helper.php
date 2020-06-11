@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin Numbered Headings: add tiered numbers for hierarchical headings
  *
@@ -10,8 +11,6 @@
  *     tier1  : heading level corresponding to the 1st tier
  *     format : numbering format (used in vsprintf) of each tier, JSON array string
  */
-if (!defined('DOKU_INC')) die();
-
 class helper_plugin_numberedheadings extends DokuWiki_Plugin
 {
     protected $Tier1Level;   // (int)   heading level corresponding to the 1st tier

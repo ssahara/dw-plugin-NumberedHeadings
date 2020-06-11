@@ -1,12 +1,11 @@
 <?php
+
 /**
  * DokuWiki Plugin Numbered Headings; action component
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Satoshi Sahara <sahara.satoshi@gmail.com>
  */
-if (!defined('DOKU_INC')) die();
-
 class action_plugin_numberedheadings extends DokuWiki_Action_Plugin
 {
     /**

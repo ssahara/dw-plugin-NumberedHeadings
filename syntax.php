@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin Numbered Headings: add tiered numbers for hierarchical headings
  *
@@ -20,10 +21,6 @@
  * @author     Lars J. Metz <dokuwiki@meistermetz.de>
  * @author     Satoshi Sahara <sahara.satoshi@gmail.com>
  */
-
-// must be run within DokuWiki
-if (!defined('DOKU_INC')) die();
-
 class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 {
     function getType()
@@ -138,7 +135,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
             $handler->addPluginCall($plugin, $data, $state, $pos, $match);
 
             $handler->_addCall('section_open', [$level], $pos);
-            $this->status['section'] = true;
+            $handler->status['section'] = true;
         } else {
             return $data;
         }
