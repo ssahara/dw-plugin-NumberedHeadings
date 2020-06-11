@@ -7,5 +7,5 @@
  */
 
 $conf['tier1']  = 2;  // heading level corresponding to the 1st tier
-$conf['format'] = '["%d.", "%d.%d", "%d.%d.%d", "%d.%d.%d.%d", "%d.%d.%d.%d.%d"]';
+$conf['format'] = '["%s.", "%s.%d", "%s.%d.%d", "%s.%d.%d.%d", "%s.%d.%d.%d.%d"]';
 $conf['fancy']  = 0;  // enclose tiered numbers in span tag (default off)
