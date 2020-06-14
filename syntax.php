@@ -127,15 +127,12 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
 
         if ($dash == 1) {
             // do same as parser::handler->header()
-            if ($handler->status['section']) {
-                $handler->_addCall('section_close', [], $pos);
-            }
-            // plugin instruction to be rewrited later
-            $plugin = substr(get_class($this), 14);
-            $handler->addPluginCall($plugin, $data, $state, $pos, $match);
+        	if ($this->getSectionState($handler)) $this->addCall($handler, 'section_close', [], $pos);
 
-            $handler->_addCall('section_open', [$level], $pos);
-            $handler->status['section'] = true;
+            // plugin instruction to be rewrited later
+            $handler->addPluginCall(substr(get_class($this), 14), $data, $state, $pos, $match);
+            $this->addCall($handler, 'section_open', [$level], $pos);
+            $this->setSectionState($handler, true);
         } else {
             return $data;
         }
@@ -150,4 +147,40 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         // nothing to do, should never be called because plugin instructions
         // are converted to normal headers in PARSER_HANDLER_DONE event handler
     }
+
+    /* -------------------------------------------------------------- *
+     * Compatibility methods for DokuWiki Hogfather
+     * -------------------------------------------------------------- */
+     // add a new call using CallWriter of the handler object
+     private function addCall(Doku_Handler $handler, $method, $args, $pos)
+     {
+     	 if (method_exists($handler, 'addCall')) {
+     	 	 // applicable since DokuWiki RC3 2020-06-10 Hogfather
+     	 	 $handler->addCall($method, $args, $pos);
+     	 } else {
+     	 	 // until DokuWiki 2018-04-22 Greebo
+     	 	 $handler->_addCall($method, $args, $pos);
+     	 }
+     }
+
+     // get section status of the handler object
+     private function getSectionstate(Doku_Handler $handler)
+     {
+     	 if (method_exists($handler, 'getStatus')) {
+     	     return $handler->getStatus('section');
+     	 } else {
+     	 	 return $handler->status['section'];
+     	 }
+     }
+
+     // set section status of the handler object
+     private function setSectionstate(Doku_Handler $handler, $value)
+     {
+     	 if (method_exists($handler, 'setStatus')) {
+     	     $handler->setStatus('section', $value);
+     	 } else {
+     	 	 $handler->status['section'] = $value;
+     	 }
+     }
+
 }
