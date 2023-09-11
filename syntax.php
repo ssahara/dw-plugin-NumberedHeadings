@@ -88,7 +88,7 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         switch ($text[0]) {
             case ' ':
                 list($number, $title) = array('', trim($text));
-                if ($title[0] == '#') {
+                if (substr($title, 0, 1) == '#') {
                     // extra check of title
                     // == - # title ==     ; "#" is NOT numbering label
                     // == - #12 title ==   ; "#" is numbering label with number
@@ -118,9 +118,11 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         }
 
         // non-visible numbered headings, marked with '--'
-        if ($dash > 1 && $title[0] == '[' && substr($title, -1) == ']') {
+        if ($dash > 1 && substr($title, 0, 1) == '[' && substr($title, -1) == ']') {
             $format = $title;
-            unset($title);
+            $title = null;
+        } else {
+            $format = null;
         }
 
         $data = compact('dash', 'level', 'number', 'title', 'format');
