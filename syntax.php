@@ -29,6 +29,12 @@ class syntax_plugin_numberedheadings extends DokuWiki_Syntax_Plugin
         return 'substition';
     }
 
+    /** paragraph type */
+    function getPType()
+    {
+        return 'block';
+    }
+
     /**
      * Connect pattern to lexer
      */
